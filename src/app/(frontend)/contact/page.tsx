@@ -1,25 +1,12 @@
-import React from 'react'
+
+"use client"
+
+import React, { useState, useRef } from 'react'
 import type { Metadata } from 'next'
 import { Mail, Phone, MapPin, MessageSquare, Clock, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-export const metadata: Metadata = {
-  title: 'Contact Us - Get in Touch with Docmet',
-  description: 'Contact Docmet for sales inquiries, support, or general questions. Multiple ways to reach our team including live chat, email, and phone support.',
-  keywords: [
-    'contact docmet',
-    'docmet support',
-    'sales inquiries',
-    'customer support',
-    'help center',
-    'get in touch'
-  ],
-  openGraph: {
-    title: 'Contact Us - Get in Touch with Docmet',
-    description: 'Contact Docmet for sales inquiries, support, or general questions.',
-    type: 'website',
-  },
-}
+
 
 const contactOptions = [
   {
@@ -84,6 +71,63 @@ const supportResources = [
 ]
 
 export default function ContactPage() {
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    company: "",
+    subject: "",
+    message: "",
+    newsletter: false,
+  });
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setStatus("loading");
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setStatus("success");
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          company: "",
+          subject: "",
+          message: "",
+          newsletter: false,
+        });
+        if (formRef.current) {
+          formRef.current.reset();
+        }
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to submit form");
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
+      setStatus("error");
+    }
+  };
+
   return (
     <main className="pt-16">
       {/* Header */}
@@ -173,7 +217,7 @@ export default function ContactPage() {
           </div>
 
           <div className="bg-white rounded-2xl shadow-lg p-8">
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit} ref={formRef}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
@@ -184,6 +228,8 @@ export default function ContactPage() {
                     id="firstName"
                     name="firstName"
                     required
+                    value={formData.firstName}
+                    onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="John"
                   />
@@ -197,6 +243,8 @@ export default function ContactPage() {
                     id="lastName"
                     name="lastName"
                     required
+                    value={formData.lastName}
+                    onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Doe"
                   />
@@ -213,6 +261,8 @@ export default function ContactPage() {
                     id="email"
                     name="email"
                     required
+                    value={formData.email}
+                    onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="john@company.com"
                   />
@@ -225,6 +275,8 @@ export default function ContactPage() {
                     type="text"
                     id="company"
                     name="company"
+                    value={formData.company}
+                    onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Acme Corp"
                   />
@@ -239,6 +291,8 @@ export default function ContactPage() {
                   id="subject"
                   name="subject"
                   required
+                  value={formData.subject}
+                  onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select a subject</option>
@@ -259,6 +313,8 @@ export default function ContactPage() {
                   name="message"
                   rows={6}
                   required
+                  value={formData.message}
+                  onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Tell us how we can help you..."
                 ></textarea>
@@ -269,16 +325,25 @@ export default function ContactPage() {
                   id="newsletter"
                   name="newsletter"
                   type="checkbox"
+                  checked={formData.newsletter}
+                  onChange={handleChange}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <label htmlFor="newsletter" className="ml-2 block text-sm text-gray-700">
-                  I'd like to receive updates about Docmet features and best practices
+                  I\'d like to receive updates about Docmet features and best practices
                 </label>
               </div>
 
-              <Button type="submit" size="lg" className="w-full">
-                Send Message
+              <Button type="submit" size="lg" className="w-full" disabled={status === "loading"}>
+                {status === "loading" ? "Sending..." : "Send Message"}
               </Button>
+
+              {status === "success" && (
+                <p className="text-green-600 text-center mt-4">Message sent successfully!</p>
+              )}
+              {status === "error" && (
+                <p className="text-red-600 text-center mt-4">Failed to send message. Please try again.</p>
+              )}
             </form>
           </div>
         </div>

@@ -14,6 +14,10 @@ import { Users } from './collections/Users'
 import { Testimonials } from './collections/Testimonials'
 import { Features } from './collections/Features'
 import { Pricing } from './collections/Pricing'
+
+
+import { FormSubmissions } from './collections/FormSubmissions'
+
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { About } from './globals/About'
@@ -77,7 +81,7 @@ export default buildConfig({
       url: process.env.DATABASE_URI || '',
     },
   }),
-  collections: [Pages, Posts, Media, Categories, Users, Testimonials, Features, Pricing],
+  collections: [Pages, Posts, Media, Categories, Users, Testimonials, Features, Pricing, FormSubmissions],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer, About],
   plugins: [
