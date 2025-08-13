@@ -373,3 +373,39 @@ You can also deploy your app manually, check out the [deployment documentation](
 ## Questions
 
 If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
+
+
+## Dynamic Content from Payload CMS
+
+This project now dynamically fetches page content from Payload CMS. This means you can create, edit, and delete pages directly from the Payload CMS admin panel, and these changes will be reflected on the frontend without requiring code modifications.
+
+### How it Works:
+- The Next.js frontend now queries the Payload CMS API to retrieve page data based on the URL slug.
+- Content blocks defined in Payload CMS are rendered dynamically on the frontend.
+
+## Database Seeding
+
+To help you get started, the project includes a database seeding mechanism that populates the Payload CMS with sample pages and content.
+
+To seed the database, run the following command:
+
+```bash
+npm run seed
+```
+
+### Important Note on Media Seeding:
+
+**Currently, programmatic media upload during seeding in Payload CMS is experiencing a known issue (`MissingFile` error).** While the seed script creates media entries in the database, it does not automatically upload the associated image files. 
+
+**To fully utilize the seeded media (e.g., the hero image on the homepage), you will need to manually upload the `dummy-image.jpg` (located in `public/media/`) through the Payload CMS admin panel and then associate it with the respective media entry.**
+
+**Steps for Manual Media Upload and Association:**
+1. **Access the Payload CMS Admin Panel:** Navigate to `http://localhost:3000/admin` (or your deployed admin URL).
+2. **Log in:** Use the seeded admin credentials (admin@docmet.com / admin123456).
+3. **Navigate to Media:** In the sidebar, click on the "Media" collection.
+4. **Upload Image:** Click "Add New" and upload the `dummy-image.jpg` file from your project's `public/media/` directory.
+5. **Associate Media:** Go to the "Pages" collection, edit the "Home" page, and in the "Hero" block, select the newly uploaded `dummy-image.jpg` from the media library.
+
+We are actively monitoring Payload CMS updates for a permanent solution to programmatic media seeding.
+
+

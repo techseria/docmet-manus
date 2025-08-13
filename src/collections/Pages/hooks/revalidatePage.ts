@@ -9,6 +9,9 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = ({
   previousDoc,
   req: { payload, context },
 }) => {
+  if (process.env.PAYLOAD_SEED === 'true') {
+    return doc
+  }
   if (!context.disableRevalidate) {
     if (doc._status === 'published') {
       const path = doc.slug === 'home' ? '/' : `/${doc.slug}`

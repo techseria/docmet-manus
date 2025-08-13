@@ -1,3 +1,3 @@
-import HomePage from './home/page'
+import Page from './[slug]/page'
 
-export default HomePage
+export default Page
