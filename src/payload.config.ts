@@ -26,13 +26,13 @@ import { getServerSideURL } from './utilities/getURL'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-import { seed } from './seed'
+// import { seed } from './seed'
 
 export default buildConfig({
   onInit: async (payload) => {
     if (process.env.PAYLOAD_SEED === 'true') {
       payload.logger.info('Seeding database...')
-      await seed(payload)
+      // await seed(payload)
       payload.logger.info('Database seeded!')
     }
   },

@@ -199,7 +199,16 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
+  layout: (
+    | HeroBlock
+    | SocialProofBlock
+    | FeaturesBlock
+    | CallToActionBlock
+    | ContentBlock
+    | MediaBlock
+    | ArchiveBlock
+    | FormBlock
+  )[];
   meta?: {
     title?: string | null;
     /**
@@ -399,6 +408,123 @@ export interface User {
       }[]
     | null;
   password?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock".
+ */
+export interface HeroBlock {
+  /**
+   * Main headline for the hero section
+   */
+  title: string;
+  /**
+   * Text to highlight in a different color (optional)
+   */
+  highlightText?: string | null;
+  /**
+   * Subtitle or description text
+   */
+  subtitle: string;
+  primaryCTA: {
+    text: string;
+    url: string;
+  };
+  secondaryCTA: {
+    text: string;
+    url: string;
+  };
+  /**
+   * Small disclaimer text below CTAs
+   */
+  disclaimer?: string | null;
+  /**
+   * Hero section image or mockup
+   */
+  heroImage?: (number | null) | Media;
+  backgroundColor?: ('gradient-blue' | 'gradient-purple' | 'gradient-green' | 'white') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'heroBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SocialProofBlock".
+ */
+export interface SocialProofBlock {
+  /**
+   * Title text above company logos
+   */
+  title?: string | null;
+  companies: {
+    /**
+     * Company name for alt text
+     */
+    name: string;
+    /**
+     * Company logo image
+     */
+    logo: number | Media;
+    /**
+     * Optional link to company website
+     */
+    url?: string | null;
+    id?: string | null;
+  }[];
+  backgroundColor?: ('gray-50' | 'white' | 'blue-50') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'socialProofBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FeaturesBlock".
+ */
+export interface FeaturesBlock {
+  /**
+   * Main title for the features section
+   */
+  title: string;
+  /**
+   * Optional subtitle or description
+   */
+  subtitle?: string | null;
+  features: {
+    /**
+     * Feature title
+     */
+    title: string;
+    /**
+     * Feature description
+     */
+    description: string;
+    /**
+     * Icon to display with the feature
+     */
+    icon:
+      | 'search'
+      | 'users'
+      | 'lock'
+      | 'zap'
+      | 'globe'
+      | 'shield'
+      | 'smartphone'
+      | 'database'
+      | 'cloud'
+      | 'settings'
+      | 'star'
+      | 'heart';
+    /**
+     * Highlight this feature with special styling
+     */
+    highlight?: boolean | null;
+    id?: string | null;
+  }[];
+  layout?: ('grid-2' | 'grid-3' | 'grid-4') | null;
+  backgroundColor?: ('white' | 'gray-50' | 'blue-50') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'featuresBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1176,6 +1302,9 @@ export interface PagesSelect<T extends boolean = true> {
   layout?:
     | T
     | {
+        heroBlock?: T | HeroBlockSelect<T>;
+        socialProofBlock?: T | SocialProofBlockSelect<T>;
+        featuresBlock?: T | FeaturesBlockSelect<T>;
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
@@ -1195,6 +1324,71 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock_select".
+ */
+export interface HeroBlockSelect<T extends boolean = true> {
+  title?: T;
+  highlightText?: T;
+  subtitle?: T;
+  primaryCTA?:
+    | T
+    | {
+        text?: T;
+        url?: T;
+      };
+  secondaryCTA?:
+    | T
+    | {
+        text?: T;
+        url?: T;
+      };
+  disclaimer?: T;
+  heroImage?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SocialProofBlock_select".
+ */
+export interface SocialProofBlockSelect<T extends boolean = true> {
+  title?: T;
+  companies?:
+    | T
+    | {
+        name?: T;
+        logo?: T;
+        url?: T;
+        id?: T;
+      };
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FeaturesBlock_select".
+ */
+export interface FeaturesBlockSelect<T extends boolean = true> {
+  title?: T;
+  subtitle?: T;
+  features?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        icon?: T;
+        highlight?: T;
+        id?: T;
+      };
+  layout?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
