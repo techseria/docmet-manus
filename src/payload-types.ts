@@ -70,8 +70,20 @@ export interface Config {
     pages: Page;
     posts: Post;
     media: Media;
+    'media-folders': MediaFolder;
+    'media-collections': MediaCollection;
     categories: Category;
     users: User;
+    roles: Role;
+    departments: Department;
+    'content-workflow': ContentWorkflow;
+    'content-versions': ContentVersion;
+    seo: Seo;
+    analytics: Analytics;
+    'ai-content': AiContent;
+    'form-builder': FormBuilder;
+    leads: Lead;
+    'form-submissions-new': FormSubmissionsNew;
     testimonials: Testimonial;
     features: Feature;
     pricing: Pricing;
@@ -89,8 +101,20 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    'media-folders': MediaFoldersSelect<false> | MediaFoldersSelect<true>;
+    'media-collections': MediaCollectionsSelect<false> | MediaCollectionsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    roles: RolesSelect<false> | RolesSelect<true>;
+    departments: DepartmentsSelect<false> | DepartmentsSelect<true>;
+    'content-workflow': ContentWorkflowSelect<false> | ContentWorkflowSelect<true>;
+    'content-versions': ContentVersionsSelect<false> | ContentVersionsSelect<true>;
+    seo: SeoSelect<false> | SeoSelect<true>;
+    analytics: AnalyticsSelect<false> | AnalyticsSelect<true>;
+    'ai-content': AiContentSelect<false> | AiContentSelect<true>;
+    'form-builder': FormBuilderSelect<false> | FormBuilderSelect<true>;
+    leads: LeadsSelect<false> | LeadsSelect<true>;
+    'form-submissions-new': FormSubmissionsNewSelect<false> | FormSubmissionsNewSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
     features: FeaturesSelect<false> | FeaturesSelect<true>;
     pricing: PricingSelect<false> | PricingSelect<true>;
@@ -110,11 +134,13 @@ export interface Config {
     header: Header;
     footer: Footer;
     about: About;
+    'ai-settings': AiSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     about: AboutSelect<false> | AboutSelect<true>;
+    'ai-settings': AiSettingsSelect<false> | AiSettingsSelect<true>;
   };
   locale: null;
   user: User & {
@@ -156,6 +182,7 @@ export interface UserAuthOperations {
 export interface Page {
   id: number;
   title: string;
+  status?: ('draft' | 'in-review' | 'approved' | 'published' | 'scheduled') | null;
   hero: {
     type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
     richText?: {
@@ -218,6 +245,10 @@ export interface Page {
     description?: string | null;
   };
   publishedAt?: string | null;
+  /**
+   * Schedule this page for future publication
+   */
+  publishDate?: string | null;
   slug?: string | null;
   slugLock?: boolean | null;
   updatedAt: string;
@@ -277,7 +308,13 @@ export interface Post {
  */
 export interface Media {
   id: number;
+  /**
+   * Alternative text for accessibility and SEO
+   */
   alt?: string | null;
+  /**
+   * Caption displayed with the media
+   */
   caption?: {
     root: {
       type: string;
@@ -293,6 +330,194 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
+  metadata?: {
+    /**
+     * SEO-friendly title for the media
+     */
+    title?: string | null;
+    /**
+     * Detailed description of the media content
+     */
+    description?: string | null;
+    /**
+     * Keywords for searchability
+     */
+    keywords?:
+      | {
+          keyword: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Photographer or creator name
+     */
+    photographer?: string | null;
+    /**
+     * Copyright information
+     */
+    copyright?: string | null;
+    /**
+     * Usage license for the media
+     */
+    license?: ('all_rights_reserved' | 'creative_commons' | 'public_domain' | 'royalty_free' | 'editorial_only') | null;
+  };
+  organization?: {
+    /**
+     * Organize media into folders
+     */
+    folder?: (number | null) | MediaFolder;
+    /**
+     * Tags for easy categorization
+     */
+    tags?:
+      | {
+          tag: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Add to media collections
+     */
+    collections?:
+      | {
+          collection?: (number | null) | MediaCollection;
+          id?: string | null;
+        }[]
+      | null;
+    status?: ('active' | 'draft' | 'archived' | 'disabled') | null;
+  };
+  processing?: {
+    /**
+     * Whether the media has been optimized
+     */
+    optimized?: boolean | null;
+    /**
+     * Compression level applied (0-100)
+     */
+    compressionLevel?: number | null;
+    /**
+     * Original file size in bytes
+     */
+    originalSize?: number | null;
+    /**
+     * Optimized file size in bytes
+     */
+    optimizedSize?: number | null;
+    /**
+     * Available formats for this media
+     */
+    formats?:
+      | {
+          format?: ('webp' | 'avif' | 'jpeg' | 'png') | null;
+          url?: string | null;
+          size?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  analytics?: {
+    /**
+     * Number of times this media has been viewed
+     */
+    views?: number | null;
+    /**
+     * Number of times this media has been downloaded
+     */
+    downloads?: number | null;
+    /**
+     * Number of times this media is used in content
+     */
+    usageCount?: number | null;
+    /**
+     * Last time this media was used
+     */
+    lastUsed?: string | null;
+    /**
+     * Content where this media is used
+     */
+    usedIn?:
+      | {
+          contentType?: ('page' | 'post' | 'product') | null;
+          contentId?: string | null;
+          contentTitle?: string | null;
+          usedAt?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  seo?: {
+    /**
+     * Primary keyword for this media
+     */
+    focusKeyword?: string | null;
+    /**
+     * SEO optimization score
+     */
+    seoScore?: number | null;
+    /**
+     * Whether alt text is SEO optimized
+     */
+    altTextOptimized?: boolean | null;
+    /**
+     * Whether filename is SEO optimized
+     */
+    filenameOptimized?: boolean | null;
+  };
+  video?: {
+    /**
+     * Video duration in seconds
+     */
+    duration?: number | null;
+    resolution?: {
+      width?: number | null;
+      height?: number | null;
+    };
+    /**
+     * Frames per second
+     */
+    frameRate?: number | null;
+    /**
+     * Video bitrate
+     */
+    bitrate?: number | null;
+    /**
+     * Video codec used
+     */
+    codec?: string | null;
+    /**
+     * Video thumbnail image
+     */
+    thumbnail?: (number | null) | Media;
+    subtitles?:
+      | {
+          language: string;
+          file?: (number | null) | Media;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  audio?: {
+    /**
+     * Audio duration in seconds
+     */
+    duration?: number | null;
+    /**
+     * Audio bitrate
+     */
+    bitrate?: number | null;
+    /**
+     * Sample rate in Hz
+     */
+    sampleRate?: number | null;
+    /**
+     * Number of audio channels
+     */
+    channels?: number | null;
+    /**
+     * Audio codec used
+     */
+    codec?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -361,7 +586,535 @@ export interface Media {
       filesize?: number | null;
       filename?: string | null;
     };
+    webp_small?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    webp_medium?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    webp_large?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media-folders".
+ */
+export interface MediaFolder {
+  id: number;
+  /**
+   * Folder name
+   */
+  name: string;
+  /**
+   * URL-friendly folder identifier
+   */
+  slug: string;
+  /**
+   * Folder description
+   */
+  description?: string | null;
+  /**
+   * Parent folder (for nested organization)
+   */
+  parent?: (number | null) | MediaFolder;
+  /**
+   * Folder color for visual organization
+   */
+  color?: ('blue' | 'green' | 'yellow' | 'orange' | 'red' | 'purple' | 'brown' | 'black' | 'white') | null;
+  permissions?: {
+    /**
+     * Allow public access to media in this folder
+     */
+    public?: boolean | null;
+    /**
+     * Roles allowed to access this folder
+     */
+    allowedRoles?:
+      | {
+          role?: (number | null) | Role;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Specific users allowed to access this folder
+     */
+    allowedUsers?:
+      | {
+          user?: (number | null) | User;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  settings?: {
+    /**
+     * Automatically optimize media uploaded to this folder
+     */
+    autoOptimize?: boolean | null;
+    /**
+     * Default compression level for images (0-100)
+     */
+    compressionLevel?: number | null;
+    /**
+     * Allowed file formats for this folder
+     */
+    allowedFormats?:
+      | {
+          format?: ('jpeg' | 'png' | 'webp' | 'avif' | 'gif' | 'svg' | 'mp4' | 'webm' | 'mp3' | 'wav' | 'pdf') | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Maximum file size in MB (0 = no limit)
+     */
+    maxFileSize?: number | null;
+    /**
+     * Require approval before media becomes active
+     */
+    requireApproval?: boolean | null;
+  };
+  statistics?: {
+    /**
+     * Number of media files in this folder
+     */
+    mediaCount?: number | null;
+    /**
+     * Total size of all media in bytes
+     */
+    totalSize?: number | null;
+    /**
+     * Last time media was added to this folder
+     */
+    lastActivity?: string | null;
+  };
+  /**
+   * Whether this folder is active
+   */
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roles".
+ */
+export interface Role {
+  id: number;
+  /**
+   * Role name (e.g., Admin, Editor, Contributor)
+   */
+  name: string;
+  /**
+   * URL-friendly role identifier
+   */
+  slug: string;
+  /**
+   * Permission level (1-10, higher = more permissions)
+   */
+  level: number;
+  /**
+   * Role description and responsibilities
+   */
+  description?: string | null;
+  permissions?: {
+    collections?: {
+      pages?: ('none' | 'read' | 'create' | 'full') | null;
+      posts?: ('none' | 'read' | 'create' | 'full') | null;
+      media?: ('none' | 'read' | 'create' | 'full') | null;
+      users?: ('none' | 'read' | 'create' | 'full') | null;
+    };
+    features?: {
+      /**
+       * Can publish content without approval
+       */
+      canPublish?: boolean | null;
+      /**
+       * Can approve content for publication
+       */
+      canApprove?: boolean | null;
+      /**
+       * Can create and manage user accounts
+       */
+      canManageUsers?: boolean | null;
+      /**
+       * Can view analytics and reports
+       */
+      canAccessAnalytics?: boolean | null;
+      /**
+       * Can modify system settings
+       */
+      canManageSettings?: boolean | null;
+    };
+  };
+  /**
+   * Whether this role is currently active
+   */
+  isActive?: boolean | null;
+  /**
+   * Hex color for role badge (e.g., #3B82F6)
+   */
+  color?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  name: string;
+  /**
+   * First name for personalization
+   */
+  firstName?: string | null;
+  /**
+   * Last name for formal communications
+   */
+  lastName?: string | null;
+  /**
+   * User role determining permissions
+   */
+  role: number | Role;
+  /**
+   * Department/team assignment
+   */
+  department?: (number | null) | Department;
+  profile?: {
+    /**
+     * Profile picture
+     */
+    avatar?: (number | null) | Media;
+    /**
+     * Short biography or description
+     */
+    bio?: string | null;
+    /**
+     * Job title or position
+     */
+    jobTitle?: string | null;
+    /**
+     * Phone number
+     */
+    phone?: string | null;
+    /**
+     * Office location or timezone
+     */
+    location?: string | null;
+    socialLinks?:
+      | {
+          platform?: ('linkedin' | 'twitter' | 'github' | 'website') | null;
+          url: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  preferences?: {
+    timezone?: ('UTC' | 'America/New_York' | 'America/Los_Angeles' | 'Europe/London' | 'Europe/Paris') | null;
+    language?: ('en' | 'es' | 'fr' | 'de') | null;
+    /**
+     * Receive email notifications
+     */
+    emailNotifications?: boolean | null;
+    /**
+     * Use dark mode interface
+     */
+    darkMode?: boolean | null;
+  };
+  security?: {
+    /**
+     * Two-factor authentication enabled
+     */
+    twoFactorEnabled?: boolean | null;
+    /**
+     * Last login timestamp
+     */
+    lastLogin?: string | null;
+    /**
+     * Failed login attempts
+     */
+    loginAttempts?: number | null;
+    /**
+     * Account locked due to security
+     */
+    isLocked?: boolean | null;
+  };
+  /**
+   * Whether this user account is active
+   */
+  isActive?: boolean | null;
+  /**
+   * Internal notes about this user (admin only)
+   */
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "departments".
+ */
+export interface Department {
+  id: number;
+  /**
+   * Department name (e.g., Marketing, Sales, Content)
+   */
+  name: string;
+  /**
+   * URL-friendly department identifier
+   */
+  slug: string;
+  /**
+   * Department description and responsibilities
+   */
+  description?: string | null;
+  /**
+   * Department manager/lead
+   */
+  manager?: (number | null) | User;
+  /**
+   * Department members
+   */
+  members?: (number | User)[] | null;
+  /**
+   * Department budget (optional)
+   */
+  budget?: number | null;
+  goals?:
+    | {
+        title: string;
+        description?: string | null;
+        targetDate?: string | null;
+        status?: ('planning' | 'in-progress' | 'completed' | 'on-hold') | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Hex color for department badge (e.g., #10B981)
+   */
+  color?: string | null;
+  /**
+   * Whether this department is currently active
+   */
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media-collections".
+ */
+export interface MediaCollection {
+  id: number;
+  /**
+   * Collection name
+   */
+  name: string;
+  /**
+   * URL-friendly collection identifier
+   */
+  slug: string;
+  /**
+   * Collection description
+   */
+  description?: string | null;
+  type:
+    | 'photo_gallery'
+    | 'video_collection'
+    | 'audio_library'
+    | 'document_set'
+    | 'design_assets'
+    | 'social_media'
+    | 'product_images'
+    | 'press_kit'
+    | 'brand_assets'
+    | 'infographics'
+    | 'marketing'
+    | 'educational'
+    | 'mixed_media';
+  /**
+   * Cover image for the collection
+   */
+  coverImage?: (number | null) | Media;
+  /**
+   * Media items in this collection
+   */
+  media?:
+    | {
+        mediaItem: number | Media;
+        /**
+         * Display order in collection
+         */
+        order?: number | null;
+        /**
+         * Feature this item in the collection
+         */
+        featured?: boolean | null;
+        /**
+         * Custom caption for this item in the collection
+         */
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  settings?: {
+    /**
+     * Make this collection publicly viewable
+     */
+    isPublic?: boolean | null;
+    /**
+     * Allow users to download media from this collection
+     */
+    allowDownloads?: boolean | null;
+    /**
+     * Require login to view this collection
+     */
+    requireLogin?: boolean | null;
+    /**
+     * Password protection for the collection (optional)
+     */
+    password?: string | null;
+    /**
+     * Collection expiration date (optional)
+     */
+    expiresAt?: string | null;
+  };
+  sharing?: {
+    /**
+     * Public sharing URL
+     */
+    shareUrl?: string | null;
+    /**
+     * Embed code for websites
+     */
+    embedCode?: string | null;
+    /**
+     * Allow social media sharing
+     */
+    socialSharing?: boolean | null;
+    /**
+     * Allow comments on the collection
+     */
+    allowComments?: boolean | null;
+  };
+  metadata?: {
+    /**
+     * Tags for categorization
+     */
+    tags?:
+      | {
+          tag: string;
+          id?: string | null;
+        }[]
+      | null;
+    category?:
+      | (
+          | 'business'
+          | 'marketing'
+          | 'design'
+          | 'photography'
+          | 'video'
+          | 'audio'
+          | 'documents'
+          | 'education'
+          | 'entertainment'
+          | 'news'
+          | 'sports'
+          | 'technology'
+          | 'travel'
+          | 'food'
+          | 'fashion'
+          | 'health'
+          | 'science'
+          | 'art'
+          | 'music'
+          | 'other'
+        )
+      | null;
+    /**
+     * SEO keywords for the collection
+     */
+    keywords?:
+      | {
+          keyword: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  analytics?: {
+    /**
+     * Number of collection views
+     */
+    views?: number | null;
+    /**
+     * Number of downloads from this collection
+     */
+    downloads?: number | null;
+    /**
+     * Number of times collection was shared
+     */
+    shares?: number | null;
+    /**
+     * Number of media items in collection
+     */
+    mediaCount?: number | null;
+    /**
+     * Last time collection was viewed
+     */
+    lastViewed?: string | null;
+  };
+  /**
+   * Collection owner
+   */
+  owner?: (number | null) | User;
+  /**
+   * Users who can collaborate on this collection
+   */
+  collaborators?:
+    | {
+        user: number | User;
+        role?: ('viewer' | 'editor' | 'admin') | null;
+        addedAt?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Whether this collection is active
+   */
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -383,31 +1136,6 @@ export interface Category {
     | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  name?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -870,6 +1598,1463 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "content-workflow".
+ */
+export interface ContentWorkflow {
+  id: number;
+  /**
+   * Workflow title or content name
+   */
+  title: string;
+  contentType: 'page' | 'post' | 'media' | 'product' | 'other';
+  /**
+   * ID of the content item being managed
+   */
+  contentId?: string | null;
+  status: 'draft' | 'in-review' | 'needs-changes' | 'approved' | 'published' | 'scheduled' | 'archived';
+  priority?: ('high' | 'medium' | 'low') | null;
+  /**
+   * User responsible for this workflow item
+   */
+  assignedTo?: (number | null) | User;
+  /**
+   * User assigned to review this content
+   */
+  reviewer?: (number | null) | User;
+  /**
+   * Original content author
+   */
+  author?: (number | null) | User;
+  /**
+   * Department responsible for this content
+   */
+  department?: (number | null) | Department;
+  dates?: {
+    /**
+     * When this workflow item is due
+     */
+    dueDate?: string | null;
+    /**
+     * Scheduled publication date
+     */
+    publishDate?: string | null;
+    /**
+     * When review was completed
+     */
+    reviewDate?: string | null;
+    /**
+     * When content was approved
+     */
+    approvalDate?: string | null;
+  };
+  comments?:
+    | {
+        author: number | User;
+        message: string;
+        type?: ('comment' | 'change-request' | 'approval' | 'rejection') | null;
+        /**
+         * Internal comment (not visible to author)
+         */
+        isInternal?: boolean | null;
+        timestamp?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Quality checklist items
+   */
+  checklist?:
+    | {
+        item: string;
+        completed?: boolean | null;
+        completedBy?: (number | null) | User;
+        completedAt?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  metadata?: {
+    /**
+     * Content word count
+     */
+    wordCount?: number | null;
+    /**
+     * Estimated reading time in minutes
+     */
+    estimatedReadTime?: number | null;
+    /**
+     * SEO optimization score (0-100)
+     */
+    seoScore?: number | null;
+    tags?:
+      | {
+          tag?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  notifications?: {
+    /**
+     * Send email when status changes
+     */
+    emailOnStatusChange?: boolean | null;
+    /**
+     * Send email when comments are added
+     */
+    emailOnComment?: boolean | null;
+    /**
+     * Slack webhook URL for notifications
+     */
+    slackWebhook?: string | null;
+  };
+  /**
+   * Whether this workflow is active
+   */
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "content-versions".
+ */
+export interface ContentVersion {
+  id: number;
+  /**
+   * Version title or description
+   */
+  title: string;
+  contentType: 'page' | 'post' | 'media' | 'product';
+  /**
+   * ID of the original content item
+   */
+  contentId: string;
+  /**
+   * Version number (e.g., 1.0, 1.1, 2.0)
+   */
+  version: string;
+  versionType?: ('major' | 'minor' | 'patch' | 'draft') | null;
+  /**
+   * User who created this version
+   */
+  author: number | User;
+  /**
+   * Previous version this is based on
+   */
+  parentVersion?: (number | null) | ContentVersion;
+  /**
+   * Complete snapshot of content at this version
+   */
+  contentSnapshot?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  changes?:
+    | {
+        /**
+         * Field that was changed
+         */
+        field: string;
+        changeType?: ('added' | 'modified' | 'deleted') | null;
+        /**
+         * Previous value
+         */
+        oldValue?: string | null;
+        /**
+         * New value
+         */
+        newValue?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Summary of changes made in this version
+   */
+  changeLog?: string | null;
+  status?: ('draft' | 'review' | 'approved' | 'published' | 'archived') | null;
+  /**
+   * Whether this is the current active version
+   */
+  isCurrentVersion?: boolean | null;
+  /**
+   * When this version was published
+   */
+  publishedAt?: string | null;
+  metrics?: {
+    wordCount?: number | null;
+    characterCount?: number | null;
+    imageCount?: number | null;
+    linkCount?: number | null;
+  };
+  rollbackData?: {
+    /**
+     * Whether this version can be rolled back to
+     */
+    canRollback?: boolean | null;
+    /**
+     * Reason for rollback (if applicable)
+     */
+    rollbackReason?: string | null;
+    /**
+     * User who performed the rollback
+     */
+    rolledBackBy?: (number | null) | User;
+    /**
+     * When rollback was performed
+     */
+    rolledBackAt?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "seo".
+ */
+export interface Seo {
+  id: number;
+  /**
+   * SEO record title for identification
+   */
+  title: string;
+  contentType: 'page' | 'post' | 'product' | 'category';
+  /**
+   * ID of the content item this SEO record belongs to
+   */
+  contentId: string;
+  /**
+   * Full URL of the content
+   */
+  url: string;
+  basicSEO?: {
+    /**
+     * SEO title (recommended: 50-60 characters)
+     */
+    metaTitle?: string | null;
+    /**
+     * SEO meta description (recommended: 150-160 characters)
+     */
+    metaDescription?: string | null;
+    /**
+     * Primary keyword to optimize for
+     */
+    focusKeyword?: string | null;
+    keywords?:
+      | {
+          keyword: string;
+          /**
+           * Keyword density percentage
+           */
+          density?: number | null;
+          /**
+           * Average search ranking position
+           */
+          position?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Canonical URL to prevent duplicate content
+     */
+    canonicalUrl?: string | null;
+  };
+  technicalSEO?: {
+    robots?: ('index,follow' | 'noindex,follow' | 'index,nofollow' | 'noindex,nofollow') | null;
+    /**
+     * Include in XML sitemap
+     */
+    sitemap?: boolean | null;
+    /**
+     * Sitemap priority (0.0 - 1.0)
+     */
+    priority?: number | null;
+    changeFrequency?: ('always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never') | null;
+    hreflang?:
+      | {
+          /**
+           * Language code (e.g., en, es, fr)
+           */
+          language: string;
+          /**
+           * URL for this language version
+           */
+          url: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  structuredData?: {
+    schemaType?:
+      | ('Article' | 'BlogPosting' | 'WebPage' | 'Product' | 'Organization' | 'Person' | 'Event' | 'FAQPage')
+      | null;
+    /**
+     * Custom JSON-LD structured data
+     */
+    customSchema?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+    breadcrumbs?:
+      | {
+          name: string;
+          url: string;
+          position: number;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  socialMedia?: {
+    /**
+     * Open Graph title
+     */
+    ogTitle?: string | null;
+    /**
+     * Open Graph description
+     */
+    ogDescription?: string | null;
+    /**
+     * Open Graph image
+     */
+    ogImage?: (number | null) | Media;
+    ogType?: ('website' | 'article' | 'product' | 'video') | null;
+    twitterCard?: ('summary' | 'summary_large_image' | 'app' | 'player') | null;
+    /**
+     * Twitter @username for the website
+     */
+    twitterSite?: string | null;
+    /**
+     * Twitter @username for content creator
+     */
+    twitterCreator?: string | null;
+  };
+  analysis?: {
+    /**
+     * Overall SEO score (0-100)
+     */
+    seoScore?: number | null;
+    /**
+     * Content readability score (0-100)
+     */
+    readabilityScore?: number | null;
+    issues?:
+      | {
+          type?: ('error' | 'warning' | 'info') | null;
+          category?: ('title' | 'description' | 'keywords' | 'content' | 'images' | 'links' | 'technical') | null;
+          message: string;
+          suggestion?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    lastAnalyzed?: string | null;
+  };
+  performance?: {
+    pageSpeed?: {
+      /**
+       * Google PageSpeed score for desktop
+       */
+      desktop?: number | null;
+      /**
+       * Google PageSpeed score for mobile
+       */
+      mobile?: number | null;
+      lastChecked?: string | null;
+    };
+    coreWebVitals?: {
+      /**
+       * Largest Contentful Paint (seconds)
+       */
+      lcp?: number | null;
+      /**
+       * First Input Delay (milliseconds)
+       */
+      fid?: number | null;
+      /**
+       * Cumulative Layout Shift
+       */
+      cls?: number | null;
+    };
+  };
+  tracking?: {
+    /**
+     * Google Analytics tracking ID
+     */
+    googleAnalytics?: string | null;
+    /**
+     * Google Tag Manager ID
+     */
+    googleTagManager?: string | null;
+    /**
+     * Facebook Pixel ID
+     */
+    facebookPixel?: string | null;
+    /**
+     * Custom tracking code
+     */
+    customTracking?: string | null;
+  };
+  status?: ('active' | 'paused' | 'archived') | null;
+  /**
+   * Automatically optimize SEO based on AI suggestions
+   */
+  autoOptimize?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "analytics".
+ */
+export interface Analytics {
+  id: number;
+  /**
+   * Analytics record title
+   */
+  title: string;
+  type:
+    | 'pageviews'
+    | 'unique_visitors'
+    | 'session_duration'
+    | 'bounce_rate'
+    | 'search_impressions'
+    | 'search_clicks'
+    | 'ctr'
+    | 'search_position'
+    | 'conversions'
+    | 'device_type'
+    | 'geographic'
+    | 'referral_source';
+  contentType?: ('all' | 'page' | 'post' | 'product' | 'category') | null;
+  /**
+   * Specific content ID (optional)
+   */
+  contentId?: string | null;
+  /**
+   * Specific URL being tracked
+   */
+  url?: string | null;
+  period: 'hourly' | 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+  /**
+   * Date for this analytics data point
+   */
+  date: string;
+  metrics: {
+    /**
+     * Primary metric value
+     */
+    value: number;
+    /**
+     * Previous period value for comparison
+     */
+    previousValue?: number | null;
+    /**
+     * Percentage change from previous period
+     */
+    change?: number | null;
+    trend?: ('increasing' | 'decreasing' | 'stable') | null;
+  };
+  dimensions?: {
+    source?: ('google_analytics' | 'google_search_console' | 'facebook_analytics' | 'custom') | null;
+    device?: ('all' | 'desktop' | 'mobile' | 'tablet') | null;
+    /**
+     * Country code (e.g., US, UK, CA)
+     */
+    country?: string | null;
+    /**
+     * Region or state
+     */
+    region?: string | null;
+    /**
+     * City name
+     */
+    city?: string | null;
+    /**
+     * Traffic source/referrer
+     */
+    referrer?: string | null;
+    /**
+     * Search keyword (if applicable)
+     */
+    keyword?: string | null;
+  };
+  goals?: {
+    /**
+     * Target value for this metric
+     */
+    target?: number | null;
+    /**
+     * Whether target was achieved
+     */
+    achieved?: boolean | null;
+    /**
+     * Performance percentage vs target
+     */
+    performance?: number | null;
+  };
+  alerts?: {
+    /**
+     * Enable alerts for this metric
+     */
+    enabled?: boolean | null;
+    /**
+     * Alert threshold value
+     */
+    threshold?: number | null;
+    condition?: ('gt' | 'lt' | 'eq' | 'change') | null;
+    recipients?:
+      | {
+          email: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Additional custom analytics data
+   */
+  customData?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Whether this analytics record is active
+   */
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ai-content".
+ */
+export interface AiContent {
+  id: number;
+  /**
+   * Title for this AI-generated content
+   */
+  title: string;
+  type:
+    | 'blog_post'
+    | 'page_content'
+    | 'email'
+    | 'social_media'
+    | 'seo_content'
+    | 'marketing_copy'
+    | 'product_description'
+    | 'translation';
+  prompt: {
+    /**
+     * User input prompt for content generation
+     */
+    userPrompt: string;
+    /**
+     * System prompt for AI behavior control
+     */
+    systemPrompt?: string | null;
+    /**
+     * Keywords to include in the content
+     */
+    keywords?:
+      | {
+          keyword: string;
+          id?: string | null;
+        }[]
+      | null;
+    tone?:
+      | (
+          | 'professional'
+          | 'casual'
+          | 'friendly'
+          | 'formal'
+          | 'conversational'
+          | 'persuasive'
+          | 'educational'
+          | 'creative'
+        )
+      | null;
+    /**
+     * Target audience for the content
+     */
+    targetAudience?: string | null;
+    /**
+     * Desired word count (approximate)
+     */
+    wordCount?: number | null;
+    language?: ('en' | 'es' | 'fr' | 'de' | 'it' | 'pt' | 'nl' | 'ru' | 'zh' | 'ja') | null;
+  };
+  aiSettings?: {
+    model?: ('gpt-4' | 'gpt-4-turbo-preview' | 'gpt-3.5-turbo') | null;
+    /**
+     * Creativity level (0 = focused, 2 = very creative)
+     */
+    temperature?: number | null;
+    /**
+     * Maximum tokens to generate
+     */
+    maxTokens?: number | null;
+    /**
+     * Nucleus sampling parameter
+     */
+    topP?: number | null;
+  };
+  generatedContent?: {
+    /**
+     * AI-generated content
+     */
+    content?: {
+      root: {
+        type: string;
+        children: {
+          type: string;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    /**
+     * Raw AI response for reference
+     */
+    rawContent?: string | null;
+    /**
+     * Alternative content versions
+     */
+    alternatives?:
+      | {
+          version: number;
+          content: string;
+          /**
+           * Quality score (0-100)
+           */
+          score?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  seoOptimization?: {
+    /**
+     * Enable SEO optimization
+     */
+    enabled?: boolean | null;
+    /**
+     * Primary keyword for SEO optimization
+     */
+    focusKeyword?: string | null;
+    /**
+     * AI-generated meta title
+     */
+    metaTitle?: string | null;
+    /**
+     * AI-generated meta description
+     */
+    metaDescription?: string | null;
+    suggestions?:
+      | {
+          type?: ('keyword' | 'readability' | 'structure' | 'meta') | null;
+          suggestion: string;
+          priority?: ('high' | 'medium' | 'low') | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  quality?: {
+    /**
+     * Overall content quality score
+     */
+    score?: number | null;
+    /**
+     * Content readability score
+     */
+    readabilityScore?: number | null;
+    /**
+     * Content originality score
+     */
+    originalityScore?: number | null;
+    /**
+     * Grammar and spelling score
+     */
+    grammarScore?: number | null;
+    feedback?:
+      | {
+          aspect: string;
+          rating: number;
+          comment?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  usage?: {
+    status?: ('draft' | 'review' | 'approved' | 'published' | 'archived') | null;
+    /**
+     * Where this AI content has been applied
+     */
+    appliedTo?:
+      | {
+          contentType?: ('page' | 'post' | 'product') | null;
+          contentId: string;
+          appliedAt?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Number of times content was regenerated
+     */
+    regenerationCount?: number | null;
+  };
+  costs?: {
+    /**
+     * Total tokens consumed
+     */
+    tokensUsed?: number | null;
+    /**
+     * Estimated cost in USD
+     */
+    estimatedCost?: number | null;
+    /**
+     * Number of API requests made
+     */
+    requestCount?: number | null;
+  };
+  /**
+   * User who requested this AI content
+   */
+  author?: (number | null) | User;
+  /**
+   * Whether this AI content record is active
+   */
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "form-builder".
+ */
+export interface FormBuilder {
+  id: number;
+  /**
+   * Form name for identification
+   */
+  name: string;
+  /**
+   * URL-friendly form identifier
+   */
+  slug: string;
+  /**
+   * Form description and purpose
+   */
+  description?: string | null;
+  type:
+    | 'contact'
+    | 'lead_generation'
+    | 'newsletter'
+    | 'survey'
+    | 'event_registration'
+    | 'job_application'
+    | 'order_form'
+    | 'feedback'
+    | 'contest'
+    | 'callback'
+    | 'quote'
+    | 'support'
+    | 'custom';
+  /**
+   * Form fields configuration
+   */
+  fields: {
+    /**
+     * Unique field identifier
+     */
+    id: string;
+    /**
+     * Field label displayed to users
+     */
+    label: string;
+    type:
+      | 'text'
+      | 'email'
+      | 'phone'
+      | 'number'
+      | 'textarea'
+      | 'select'
+      | 'radio'
+      | 'checkbox'
+      | 'file'
+      | 'date'
+      | 'time'
+      | 'url'
+      | 'hidden'
+      | 'html'
+      | 'divider';
+    /**
+     * Placeholder text for input fields
+     */
+    placeholder?: string | null;
+    /**
+     * Help text displayed below the field
+     */
+    helpText?: string | null;
+    /**
+     * Make this field required
+     */
+    required?: boolean | null;
+    validation?: {
+      /**
+       * Minimum character length
+       */
+      minLength?: number | null;
+      /**
+       * Maximum character length
+       */
+      maxLength?: number | null;
+      /**
+       * Regular expression pattern
+       */
+      pattern?: string | null;
+      /**
+       * Custom validation JavaScript function
+       */
+      customValidation?: string | null;
+    };
+    options?:
+      | {
+          label: string;
+          value: string;
+          selected?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+    conditionalLogic?: {
+      enabled?: boolean | null;
+      conditions?:
+        | {
+            /**
+             * Field ID to check
+             */
+            field: string;
+            operator?:
+              | ('equals' | 'not_equals' | 'contains' | 'greater_than' | 'less_than' | 'is_empty' | 'is_not_empty')
+              | null;
+            /**
+             * Value to compare against
+             */
+            value?: string | null;
+            id?: string | null;
+          }[]
+        | null;
+      action?: ('show' | 'hide' | 'enable' | 'disable') | null;
+    };
+    styling?: {
+      width?: ('full' | 'half' | 'third' | 'two-thirds' | 'quarter') | null;
+      /**
+       * Custom CSS classes
+       */
+      cssClass?: string | null;
+      /**
+       * Custom CSS styles
+       */
+      customStyles?: string | null;
+    };
+    /**
+     * Field display order
+     */
+    order?: number | null;
+  }[];
+  settings?: {
+    /**
+     * Submit button text
+     */
+    submitButtonText?: string | null;
+    /**
+     * Message shown after successful submission
+     */
+    successMessage?: string | null;
+    /**
+     * Message shown on submission error
+     */
+    errorMessage?: string | null;
+    /**
+     * URL to redirect to after submission (optional)
+     */
+    redirectUrl?: string | null;
+    /**
+     * Allow multiple submissions from same user/IP
+     */
+    allowMultipleSubmissions?: boolean | null;
+    /**
+     * Require CAPTCHA verification
+     */
+    requireCaptcha?: boolean | null;
+    /**
+     * Enable honeypot spam protection
+     */
+    honeypot?: boolean | null;
+  };
+  notifications?: {
+    /**
+     * Send email notifications on submission
+     */
+    emailNotifications?: boolean | null;
+    notificationEmails?:
+      | {
+          email: string;
+          role?: ('admin' | 'sales' | 'support' | 'marketing') | null;
+          id?: string | null;
+        }[]
+      | null;
+    autoResponder?: {
+      enabled?: boolean | null;
+      subject?: string | null;
+      message?: string | null;
+    };
+    /**
+     * Webhook URL for external integrations
+     */
+    webhookUrl?: string | null;
+  };
+  leadScoring?: {
+    enabled?: boolean | null;
+    scoringRules?:
+      | {
+          /**
+           * Field ID to score
+           */
+          field: string;
+          condition?: ('equals' | 'contains' | 'greater_than' | 'less_than' | 'is_filled') | null;
+          /**
+           * Value to match against
+           */
+          value?: string | null;
+          /**
+           * Points to add/subtract
+           */
+          score: number;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Minimum score for qualified lead
+     */
+    qualificationThreshold?: number | null;
+  };
+  integrations?: {
+    crm?: {
+      enabled?: boolean | null;
+      provider?: ('salesforce' | 'hubspot' | 'pipedrive' | 'zoho' | 'custom') | null;
+      apiKey?: string | null;
+      fieldMapping?:
+        | {
+            formField: string;
+            crmField: string;
+            id?: string | null;
+          }[]
+        | null;
+    };
+    emailMarketing?: {
+      enabled?: boolean | null;
+      provider?: ('mailchimp' | 'constant_contact' | 'campaign_monitor' | 'aweber' | 'convertkit') | null;
+      listId?: string | null;
+      apiKey?: string | null;
+    };
+  };
+  analytics?: {
+    /**
+     * Total number of submissions
+     */
+    submissions?: number | null;
+    /**
+     * Total number of form views
+     */
+    views?: number | null;
+    /**
+     * Conversion rate percentage
+     */
+    conversionRate?: number | null;
+    /**
+     * Average time to complete form (seconds)
+     */
+    averageCompletionTime?: number | null;
+    /**
+     * Form abandonment rate percentage
+     */
+    abandonmentRate?: number | null;
+    /**
+     * Date of last submission
+     */
+    lastSubmission?: string | null;
+  };
+  status?: ('draft' | 'active' | 'paused' | 'archived') | null;
+  /**
+   * Form creator
+   */
+  author?: (number | null) | User;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads".
+ */
+export interface Lead {
+  id: number;
+  /**
+   * Lead full name
+   */
+  name?: string | null;
+  /**
+   * First name
+   */
+  firstName?: string | null;
+  /**
+   * Last name
+   */
+  lastName?: string | null;
+  /**
+   * Primary email address
+   */
+  email: string;
+  /**
+   * Phone number
+   */
+  phone?: string | null;
+  company?: {
+    /**
+     * Company name
+     */
+    name?: string | null;
+    /**
+     * Company website
+     */
+    website?: string | null;
+    industry?:
+      | (
+          | 'technology'
+          | 'healthcare'
+          | 'finance'
+          | 'education'
+          | 'retail'
+          | 'manufacturing'
+          | 'real_estate'
+          | 'consulting'
+          | 'marketing'
+          | 'non_profit'
+          | 'government'
+          | 'other'
+        )
+      | null;
+    size?: ('1-10' | '11-50' | '51-200' | '201-500' | '501-1000' | '1000+') | null;
+    revenue?: ('under_1m' | '1m_10m' | '10m_50m' | '50m_100m' | 'over_100m') | null;
+  };
+  /**
+   * Job title or position
+   */
+  jobTitle?: string | null;
+  location?: {
+    country?: string | null;
+    state?: string | null;
+    city?: string | null;
+    zipCode?: string | null;
+    timezone?: string | null;
+  };
+  source: {
+    type:
+      | 'contact_form'
+      | 'landing_page'
+      | 'email_campaign'
+      | 'social_media'
+      | 'organic_search'
+      | 'paid_ads'
+      | 'referral'
+      | 'phone_call'
+      | 'event'
+      | 'content'
+      | 'direct'
+      | 'other';
+    form?: (number | null) | FormBuilder;
+    /**
+     * Campaign name or identifier
+     */
+    campaign?: string | null;
+    /**
+     * Traffic medium (e.g., cpc, email, social)
+     */
+    medium?: string | null;
+    /**
+     * Referring website or source
+     */
+    referrer?: string | null;
+    utmParameters?: {
+      source?: string | null;
+      medium?: string | null;
+      campaign?: string | null;
+      term?: string | null;
+      content?: string | null;
+    };
+  };
+  scoring?: {
+    /**
+     * Lead score (0-100)
+     */
+    score?: number | null;
+    grade?: ('hot' | 'warm' | 'cold' | 'qualified' | 'unqualified') | null;
+    qualification?: {
+      budget?: ('under_1k' | '1k_5k' | '5k_10k' | '10k_25k' | '25k_50k' | 'over_50k' | 'unknown') | null;
+      authority?: ('decision_maker' | 'influencer' | 'user' | 'unknown') | null;
+      need?: ('urgent' | 'high' | 'medium' | 'low' | 'unknown') | null;
+      timeline?: ('immediate' | '1_3_months' | '3_6_months' | '6_12_months' | 'over_1_year' | 'unknown') | null;
+    };
+    /**
+     * Lead scoring history
+     */
+    scoringHistory?:
+      | {
+          date?: string | null;
+          previousScore?: number | null;
+          newScore?: number | null;
+          reason?: string | null;
+          action?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  status?:
+    | ('new' | 'contacted' | 'qualified' | 'opportunity' | 'customer' | 'lost' | 'unqualified' | 'callback' | 'nurture')
+    | null;
+  /**
+   * Sales rep or team member assigned to this lead
+   */
+  assignedTo?: (number | null) | User;
+  /**
+   * Lead activity history
+   */
+  activities?:
+    | {
+        type: 'email' | 'phone_call' | 'meeting' | 'note' | 'proposal_sent' | 'demo' | 'follow_up' | 'other';
+        subject: string;
+        description?: string | null;
+        date?: string | null;
+        /**
+         * Duration in minutes
+         */
+        duration?: number | null;
+        outcome?:
+          | ('successful' | 'follow_up_required' | 'no_response' | 'not_interested' | 'callback_requested')
+          | null;
+        /**
+         * Next action to take
+         */
+        nextAction?: string | null;
+        /**
+         * When to take next action
+         */
+        nextActionDate?: string | null;
+        /**
+         * User who performed this activity
+         */
+        user?: (number | null) | User;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Custom lead data from forms
+   */
+  customFields?:
+    | {
+        name: string;
+        value: string;
+        type?: ('text' | 'number' | 'date' | 'boolean' | 'url') | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Tags for categorization
+   */
+  tags?:
+    | {
+        tag: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Lead notes and comments
+   */
+  notes?:
+    | {
+        note: string;
+        date?: string | null;
+        user?: (number | null) | User;
+        /**
+         * Private note (only visible to author)
+         */
+        private?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  communication?: {
+    preferences?: {
+      email?: boolean | null;
+      phone?: boolean | null;
+      sms?: boolean | null;
+      bestTimeToContact?: ('morning' | 'afternoon' | 'evening' | 'anytime') | null;
+    };
+    /**
+     * Do not contact this lead
+     */
+    doNotContact?: boolean | null;
+    /**
+     * Unsubscribed from marketing communications
+     */
+    unsubscribed?: boolean | null;
+    /**
+     * Last time this lead was contacted
+     */
+    lastContactDate?: string | null;
+    /**
+     * Number of contact attempts
+     */
+    contactAttempts?: number | null;
+  };
+  analytics?: {
+    /**
+     * Number of page views
+     */
+    pageViews?: number | null;
+    /**
+     * Number of email opens
+     */
+    emailOpens?: number | null;
+    /**
+     * Number of email clicks
+     */
+    emailClicks?: number | null;
+    /**
+     * Last activity date
+     */
+    lastActivity?: string | null;
+    /**
+     * Engagement score (0-100)
+     */
+    engagementScore?: number | null;
+  };
+  /**
+   * Whether this lead is active
+   */
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "form-submissions-new".
+ */
+export interface FormSubmissionsNew {
+  id: number;
+  /**
+   * Submitter email for easy identification
+   */
+  submitterEmail?: string | null;
+  /**
+   * Form that was submitted
+   */
+  form: number | FormBuilder;
+  /**
+   * Raw form submission data
+   */
+  submissionData:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  submitter?: {
+    /**
+     * Submitter email address
+     */
+    email?: string | null;
+    /**
+     * Submitter name
+     */
+    name?: string | null;
+    /**
+     * IP address of submitter
+     */
+    ipAddress?: string | null;
+    /**
+     * Browser user agent
+     */
+    userAgent?: string | null;
+    /**
+     * Referring page URL
+     */
+    referrer?: string | null;
+  };
+  /**
+   * Associated lead record
+   */
+  lead?: (number | null) | Lead;
+  status?: ('new' | 'reviewed' | 'processed' | 'converted' | 'spam' | 'rejected') | null;
+  scoring?: {
+    /**
+     * Calculated lead score
+     */
+    score?: number | null;
+    /**
+     * Whether this submission qualifies as a lead
+     */
+    qualified?: boolean | null;
+    /**
+     * Detailed scoring breakdown
+     */
+    scoringDetails?:
+      | {
+          rule: string;
+          field: string;
+          value?: string | null;
+          points: number;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  processing?: {
+    /**
+     * Whether this submission has been processed
+     */
+    processed?: boolean | null;
+    /**
+     * When this submission was processed
+     */
+    processedAt?: string | null;
+    /**
+     * User who processed this submission
+     */
+    processedBy?: (number | null) | User;
+    notifications?: {
+      emailSent?: boolean | null;
+      emailSentAt?: string | null;
+      webhookSent?: boolean | null;
+      webhookSentAt?: string | null;
+      crmSynced?: boolean | null;
+      crmSyncedAt?: string | null;
+    };
+    /**
+     * Processing errors
+     */
+    errors?:
+      | {
+          type?: ('email' | 'webhook' | 'crm' | 'lead' | 'validation') | null;
+          message: string;
+          timestamp?: string | null;
+          resolved?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  spam?: {
+    /**
+     * Marked as spam
+     */
+    isSpam?: boolean | null;
+    /**
+     * Spam probability score (0-100)
+     */
+    spamScore?: number | null;
+    /**
+     * Reasons for spam classification
+     */
+    spamReasons?:
+      | {
+          reason?:
+            | (
+                | 'honeypot'
+                | 'suspicious_ip'
+                | 'duplicate'
+                | 'invalid_email'
+                | 'spam_keywords'
+                | 'too_fast'
+                | 'bot_detected'
+              )
+            | null;
+          details?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  metadata?: {
+    /**
+     * Time taken to complete form (seconds)
+     */
+    submissionTime?: number | null;
+    /**
+     * URL where form was submitted
+     */
+    pageUrl?: string | null;
+    /**
+     * UTM tracking parameters
+     */
+    utmParameters?: {
+      source?: string | null;
+      medium?: string | null;
+      campaign?: string | null;
+      term?: string | null;
+      content?: string | null;
+    };
+    /**
+     * Device information
+     */
+    device?: {
+      type?: ('desktop' | 'mobile' | 'tablet') | null;
+      browser?: string | null;
+      os?: string | null;
+    };
+  };
+  /**
+   * User assigned to handle this submission
+   */
+  assignedTo?: (number | null) | User;
+  /**
+   * Internal notes about this submission
+   */
+  notes?:
+    | {
+        note: string;
+        date?: string | null;
+        user?: (number | null) | User;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Tags for categorization
+   */
+  tags?:
+    | {
+        tag: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "testimonials".
  */
 export interface Testimonial {
@@ -1190,12 +3375,60 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
+        relationTo: 'media-folders';
+        value: number | MediaFolder;
+      } | null)
+    | ({
+        relationTo: 'media-collections';
+        value: number | MediaCollection;
+      } | null)
+    | ({
         relationTo: 'categories';
         value: number | Category;
       } | null)
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'roles';
+        value: number | Role;
+      } | null)
+    | ({
+        relationTo: 'departments';
+        value: number | Department;
+      } | null)
+    | ({
+        relationTo: 'content-workflow';
+        value: number | ContentWorkflow;
+      } | null)
+    | ({
+        relationTo: 'content-versions';
+        value: number | ContentVersion;
+      } | null)
+    | ({
+        relationTo: 'seo';
+        value: number | Seo;
+      } | null)
+    | ({
+        relationTo: 'analytics';
+        value: number | Analytics;
+      } | null)
+    | ({
+        relationTo: 'ai-content';
+        value: number | AiContent;
+      } | null)
+    | ({
+        relationTo: 'form-builder';
+        value: number | FormBuilder;
+      } | null)
+    | ({
+        relationTo: 'leads';
+        value: number | Lead;
+      } | null)
+    | ({
+        relationTo: 'form-submissions-new';
+        value: number | FormSubmissionsNew;
       } | null)
     | ({
         relationTo: 'testimonials';
@@ -1277,6 +3510,7 @@ export interface PayloadMigration {
  */
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
+  status?: T;
   hero?:
     | T
     | {
@@ -1319,6 +3553,7 @@ export interface PagesSelect<T extends boolean = true> {
         description?: T;
       };
   publishedAt?: T;
+  publishDate?: T;
   slug?: T;
   slugLock?: T;
   updatedAt?: T;
@@ -1512,6 +3747,111 @@ export interface PostsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
+  metadata?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        keywords?:
+          | T
+          | {
+              keyword?: T;
+              id?: T;
+            };
+        photographer?: T;
+        copyright?: T;
+        license?: T;
+      };
+  organization?:
+    | T
+    | {
+        folder?: T;
+        tags?:
+          | T
+          | {
+              tag?: T;
+              id?: T;
+            };
+        collections?:
+          | T
+          | {
+              collection?: T;
+              id?: T;
+            };
+        status?: T;
+      };
+  processing?:
+    | T
+    | {
+        optimized?: T;
+        compressionLevel?: T;
+        originalSize?: T;
+        optimizedSize?: T;
+        formats?:
+          | T
+          | {
+              format?: T;
+              url?: T;
+              size?: T;
+              id?: T;
+            };
+      };
+  analytics?:
+    | T
+    | {
+        views?: T;
+        downloads?: T;
+        usageCount?: T;
+        lastUsed?: T;
+        usedIn?:
+          | T
+          | {
+              contentType?: T;
+              contentId?: T;
+              contentTitle?: T;
+              usedAt?: T;
+              id?: T;
+            };
+      };
+  seo?:
+    | T
+    | {
+        focusKeyword?: T;
+        seoScore?: T;
+        altTextOptimized?: T;
+        filenameOptimized?: T;
+      };
+  video?:
+    | T
+    | {
+        duration?: T;
+        resolution?:
+          | T
+          | {
+              width?: T;
+              height?: T;
+            };
+        frameRate?: T;
+        bitrate?: T;
+        codec?: T;
+        thumbnail?: T;
+        subtitles?:
+          | T
+          | {
+              language?: T;
+              file?: T;
+              id?: T;
+            };
+      };
+  audio?:
+    | T
+    | {
+        duration?: T;
+        bitrate?: T;
+        sampleRate?: T;
+        channels?: T;
+        codec?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1596,7 +3936,164 @@ export interface MediaSelect<T extends boolean = true> {
               filesize?: T;
               filename?: T;
             };
+        webp_small?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        webp_medium?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        webp_large?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media-folders_select".
+ */
+export interface MediaFoldersSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  parent?: T;
+  color?: T;
+  permissions?:
+    | T
+    | {
+        public?: T;
+        allowedRoles?:
+          | T
+          | {
+              role?: T;
+              id?: T;
+            };
+        allowedUsers?:
+          | T
+          | {
+              user?: T;
+              id?: T;
+            };
+      };
+  settings?:
+    | T
+    | {
+        autoOptimize?: T;
+        compressionLevel?: T;
+        allowedFormats?:
+          | T
+          | {
+              format?: T;
+              id?: T;
+            };
+        maxFileSize?: T;
+        requireApproval?: T;
+      };
+  statistics?:
+    | T
+    | {
+        mediaCount?: T;
+        totalSize?: T;
+        lastActivity?: T;
+      };
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media-collections_select".
+ */
+export interface MediaCollectionsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  type?: T;
+  coverImage?: T;
+  media?:
+    | T
+    | {
+        mediaItem?: T;
+        order?: T;
+        featured?: T;
+        caption?: T;
+        id?: T;
+      };
+  settings?:
+    | T
+    | {
+        isPublic?: T;
+        allowDownloads?: T;
+        requireLogin?: T;
+        password?: T;
+        expiresAt?: T;
+      };
+  sharing?:
+    | T
+    | {
+        shareUrl?: T;
+        embedCode?: T;
+        socialSharing?: T;
+        allowComments?: T;
+      };
+  metadata?:
+    | T
+    | {
+        tags?:
+          | T
+          | {
+              tag?: T;
+              id?: T;
+            };
+        category?: T;
+        keywords?:
+          | T
+          | {
+              keyword?: T;
+              id?: T;
+            };
+      };
+  analytics?:
+    | T
+    | {
+        views?: T;
+        downloads?: T;
+        shares?: T;
+        mediaCount?: T;
+        lastViewed?: T;
+      };
+  owner?: T;
+  collaborators?:
+    | T
+    | {
+        user?: T;
+        role?: T;
+        addedAt?: T;
+        id?: T;
+      };
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1624,6 +4121,44 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  firstName?: T;
+  lastName?: T;
+  role?: T;
+  department?: T;
+  profile?:
+    | T
+    | {
+        avatar?: T;
+        bio?: T;
+        jobTitle?: T;
+        phone?: T;
+        location?: T;
+        socialLinks?:
+          | T
+          | {
+              platform?: T;
+              url?: T;
+              id?: T;
+            };
+      };
+  preferences?:
+    | T
+    | {
+        timezone?: T;
+        language?: T;
+        emailNotifications?: T;
+        darkMode?: T;
+      };
+  security?:
+    | T
+    | {
+        twoFactorEnabled?: T;
+        lastLogin?: T;
+        loginAttempts?: T;
+        isLocked?: T;
+      };
+  isActive?: T;
+  notes?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -1640,6 +4175,843 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roles_select".
+ */
+export interface RolesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  level?: T;
+  description?: T;
+  permissions?:
+    | T
+    | {
+        collections?:
+          | T
+          | {
+              pages?: T;
+              posts?: T;
+              media?: T;
+              users?: T;
+            };
+        features?:
+          | T
+          | {
+              canPublish?: T;
+              canApprove?: T;
+              canManageUsers?: T;
+              canAccessAnalytics?: T;
+              canManageSettings?: T;
+            };
+      };
+  isActive?: T;
+  color?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "departments_select".
+ */
+export interface DepartmentsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  manager?: T;
+  members?: T;
+  budget?: T;
+  goals?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        targetDate?: T;
+        status?: T;
+        id?: T;
+      };
+  color?: T;
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "content-workflow_select".
+ */
+export interface ContentWorkflowSelect<T extends boolean = true> {
+  title?: T;
+  contentType?: T;
+  contentId?: T;
+  status?: T;
+  priority?: T;
+  assignedTo?: T;
+  reviewer?: T;
+  author?: T;
+  department?: T;
+  dates?:
+    | T
+    | {
+        dueDate?: T;
+        publishDate?: T;
+        reviewDate?: T;
+        approvalDate?: T;
+      };
+  comments?:
+    | T
+    | {
+        author?: T;
+        message?: T;
+        type?: T;
+        isInternal?: T;
+        timestamp?: T;
+        id?: T;
+      };
+  checklist?:
+    | T
+    | {
+        item?: T;
+        completed?: T;
+        completedBy?: T;
+        completedAt?: T;
+        id?: T;
+      };
+  metadata?:
+    | T
+    | {
+        wordCount?: T;
+        estimatedReadTime?: T;
+        seoScore?: T;
+        tags?:
+          | T
+          | {
+              tag?: T;
+              id?: T;
+            };
+      };
+  notifications?:
+    | T
+    | {
+        emailOnStatusChange?: T;
+        emailOnComment?: T;
+        slackWebhook?: T;
+      };
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "content-versions_select".
+ */
+export interface ContentVersionsSelect<T extends boolean = true> {
+  title?: T;
+  contentType?: T;
+  contentId?: T;
+  version?: T;
+  versionType?: T;
+  author?: T;
+  parentVersion?: T;
+  contentSnapshot?: T;
+  changes?:
+    | T
+    | {
+        field?: T;
+        changeType?: T;
+        oldValue?: T;
+        newValue?: T;
+        id?: T;
+      };
+  changeLog?: T;
+  status?: T;
+  isCurrentVersion?: T;
+  publishedAt?: T;
+  metrics?:
+    | T
+    | {
+        wordCount?: T;
+        characterCount?: T;
+        imageCount?: T;
+        linkCount?: T;
+      };
+  rollbackData?:
+    | T
+    | {
+        canRollback?: T;
+        rollbackReason?: T;
+        rolledBackBy?: T;
+        rolledBackAt?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "seo_select".
+ */
+export interface SeoSelect<T extends boolean = true> {
+  title?: T;
+  contentType?: T;
+  contentId?: T;
+  url?: T;
+  basicSEO?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        focusKeyword?: T;
+        keywords?:
+          | T
+          | {
+              keyword?: T;
+              density?: T;
+              position?: T;
+              id?: T;
+            };
+        canonicalUrl?: T;
+      };
+  technicalSEO?:
+    | T
+    | {
+        robots?: T;
+        sitemap?: T;
+        priority?: T;
+        changeFrequency?: T;
+        hreflang?:
+          | T
+          | {
+              language?: T;
+              url?: T;
+              id?: T;
+            };
+      };
+  structuredData?:
+    | T
+    | {
+        schemaType?: T;
+        customSchema?: T;
+        breadcrumbs?:
+          | T
+          | {
+              name?: T;
+              url?: T;
+              position?: T;
+              id?: T;
+            };
+      };
+  socialMedia?:
+    | T
+    | {
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+        ogType?: T;
+        twitterCard?: T;
+        twitterSite?: T;
+        twitterCreator?: T;
+      };
+  analysis?:
+    | T
+    | {
+        seoScore?: T;
+        readabilityScore?: T;
+        issues?:
+          | T
+          | {
+              type?: T;
+              category?: T;
+              message?: T;
+              suggestion?: T;
+              id?: T;
+            };
+        lastAnalyzed?: T;
+      };
+  performance?:
+    | T
+    | {
+        pageSpeed?:
+          | T
+          | {
+              desktop?: T;
+              mobile?: T;
+              lastChecked?: T;
+            };
+        coreWebVitals?:
+          | T
+          | {
+              lcp?: T;
+              fid?: T;
+              cls?: T;
+            };
+      };
+  tracking?:
+    | T
+    | {
+        googleAnalytics?: T;
+        googleTagManager?: T;
+        facebookPixel?: T;
+        customTracking?: T;
+      };
+  status?: T;
+  autoOptimize?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "analytics_select".
+ */
+export interface AnalyticsSelect<T extends boolean = true> {
+  title?: T;
+  type?: T;
+  contentType?: T;
+  contentId?: T;
+  url?: T;
+  period?: T;
+  date?: T;
+  metrics?:
+    | T
+    | {
+        value?: T;
+        previousValue?: T;
+        change?: T;
+        trend?: T;
+      };
+  dimensions?:
+    | T
+    | {
+        source?: T;
+        device?: T;
+        country?: T;
+        region?: T;
+        city?: T;
+        referrer?: T;
+        keyword?: T;
+      };
+  goals?:
+    | T
+    | {
+        target?: T;
+        achieved?: T;
+        performance?: T;
+      };
+  alerts?:
+    | T
+    | {
+        enabled?: T;
+        threshold?: T;
+        condition?: T;
+        recipients?:
+          | T
+          | {
+              email?: T;
+              id?: T;
+            };
+      };
+  customData?: T;
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ai-content_select".
+ */
+export interface AiContentSelect<T extends boolean = true> {
+  title?: T;
+  type?: T;
+  prompt?:
+    | T
+    | {
+        userPrompt?: T;
+        systemPrompt?: T;
+        keywords?:
+          | T
+          | {
+              keyword?: T;
+              id?: T;
+            };
+        tone?: T;
+        targetAudience?: T;
+        wordCount?: T;
+        language?: T;
+      };
+  aiSettings?:
+    | T
+    | {
+        model?: T;
+        temperature?: T;
+        maxTokens?: T;
+        topP?: T;
+      };
+  generatedContent?:
+    | T
+    | {
+        content?: T;
+        rawContent?: T;
+        alternatives?:
+          | T
+          | {
+              version?: T;
+              content?: T;
+              score?: T;
+              id?: T;
+            };
+      };
+  seoOptimization?:
+    | T
+    | {
+        enabled?: T;
+        focusKeyword?: T;
+        metaTitle?: T;
+        metaDescription?: T;
+        suggestions?:
+          | T
+          | {
+              type?: T;
+              suggestion?: T;
+              priority?: T;
+              id?: T;
+            };
+      };
+  quality?:
+    | T
+    | {
+        score?: T;
+        readabilityScore?: T;
+        originalityScore?: T;
+        grammarScore?: T;
+        feedback?:
+          | T
+          | {
+              aspect?: T;
+              rating?: T;
+              comment?: T;
+              id?: T;
+            };
+      };
+  usage?:
+    | T
+    | {
+        status?: T;
+        appliedTo?:
+          | T
+          | {
+              contentType?: T;
+              contentId?: T;
+              appliedAt?: T;
+              id?: T;
+            };
+        regenerationCount?: T;
+      };
+  costs?:
+    | T
+    | {
+        tokensUsed?: T;
+        estimatedCost?: T;
+        requestCount?: T;
+      };
+  author?: T;
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "form-builder_select".
+ */
+export interface FormBuilderSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  type?: T;
+  fields?:
+    | T
+    | {
+        id?: T;
+        label?: T;
+        type?: T;
+        placeholder?: T;
+        helpText?: T;
+        required?: T;
+        validation?:
+          | T
+          | {
+              minLength?: T;
+              maxLength?: T;
+              pattern?: T;
+              customValidation?: T;
+            };
+        options?:
+          | T
+          | {
+              label?: T;
+              value?: T;
+              selected?: T;
+              id?: T;
+            };
+        conditionalLogic?:
+          | T
+          | {
+              enabled?: T;
+              conditions?:
+                | T
+                | {
+                    field?: T;
+                    operator?: T;
+                    value?: T;
+                    id?: T;
+                  };
+              action?: T;
+            };
+        styling?:
+          | T
+          | {
+              width?: T;
+              cssClass?: T;
+              customStyles?: T;
+            };
+        order?: T;
+      };
+  settings?:
+    | T
+    | {
+        submitButtonText?: T;
+        successMessage?: T;
+        errorMessage?: T;
+        redirectUrl?: T;
+        allowMultipleSubmissions?: T;
+        requireCaptcha?: T;
+        honeypot?: T;
+      };
+  notifications?:
+    | T
+    | {
+        emailNotifications?: T;
+        notificationEmails?:
+          | T
+          | {
+              email?: T;
+              role?: T;
+              id?: T;
+            };
+        autoResponder?:
+          | T
+          | {
+              enabled?: T;
+              subject?: T;
+              message?: T;
+            };
+        webhookUrl?: T;
+      };
+  leadScoring?:
+    | T
+    | {
+        enabled?: T;
+        scoringRules?:
+          | T
+          | {
+              field?: T;
+              condition?: T;
+              value?: T;
+              score?: T;
+              id?: T;
+            };
+        qualificationThreshold?: T;
+      };
+  integrations?:
+    | T
+    | {
+        crm?:
+          | T
+          | {
+              enabled?: T;
+              provider?: T;
+              apiKey?: T;
+              fieldMapping?:
+                | T
+                | {
+                    formField?: T;
+                    crmField?: T;
+                    id?: T;
+                  };
+            };
+        emailMarketing?:
+          | T
+          | {
+              enabled?: T;
+              provider?: T;
+              listId?: T;
+              apiKey?: T;
+            };
+      };
+  analytics?:
+    | T
+    | {
+        submissions?: T;
+        views?: T;
+        conversionRate?: T;
+        averageCompletionTime?: T;
+        abandonmentRate?: T;
+        lastSubmission?: T;
+      };
+  status?: T;
+  author?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads_select".
+ */
+export interface LeadsSelect<T extends boolean = true> {
+  name?: T;
+  firstName?: T;
+  lastName?: T;
+  email?: T;
+  phone?: T;
+  company?:
+    | T
+    | {
+        name?: T;
+        website?: T;
+        industry?: T;
+        size?: T;
+        revenue?: T;
+      };
+  jobTitle?: T;
+  location?:
+    | T
+    | {
+        country?: T;
+        state?: T;
+        city?: T;
+        zipCode?: T;
+        timezone?: T;
+      };
+  source?:
+    | T
+    | {
+        type?: T;
+        form?: T;
+        campaign?: T;
+        medium?: T;
+        referrer?: T;
+        utmParameters?:
+          | T
+          | {
+              source?: T;
+              medium?: T;
+              campaign?: T;
+              term?: T;
+              content?: T;
+            };
+      };
+  scoring?:
+    | T
+    | {
+        score?: T;
+        grade?: T;
+        qualification?:
+          | T
+          | {
+              budget?: T;
+              authority?: T;
+              need?: T;
+              timeline?: T;
+            };
+        scoringHistory?:
+          | T
+          | {
+              date?: T;
+              previousScore?: T;
+              newScore?: T;
+              reason?: T;
+              action?: T;
+              id?: T;
+            };
+      };
+  status?: T;
+  assignedTo?: T;
+  activities?:
+    | T
+    | {
+        type?: T;
+        subject?: T;
+        description?: T;
+        date?: T;
+        duration?: T;
+        outcome?: T;
+        nextAction?: T;
+        nextActionDate?: T;
+        user?: T;
+        id?: T;
+      };
+  customFields?:
+    | T
+    | {
+        name?: T;
+        value?: T;
+        type?: T;
+        id?: T;
+      };
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  notes?:
+    | T
+    | {
+        note?: T;
+        date?: T;
+        user?: T;
+        private?: T;
+        id?: T;
+      };
+  communication?:
+    | T
+    | {
+        preferences?:
+          | T
+          | {
+              email?: T;
+              phone?: T;
+              sms?: T;
+              bestTimeToContact?: T;
+            };
+        doNotContact?: T;
+        unsubscribed?: T;
+        lastContactDate?: T;
+        contactAttempts?: T;
+      };
+  analytics?:
+    | T
+    | {
+        pageViews?: T;
+        emailOpens?: T;
+        emailClicks?: T;
+        lastActivity?: T;
+        engagementScore?: T;
+      };
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "form-submissions-new_select".
+ */
+export interface FormSubmissionsNewSelect<T extends boolean = true> {
+  submitterEmail?: T;
+  form?: T;
+  submissionData?: T;
+  submitter?:
+    | T
+    | {
+        email?: T;
+        name?: T;
+        ipAddress?: T;
+        userAgent?: T;
+        referrer?: T;
+      };
+  lead?: T;
+  status?: T;
+  scoring?:
+    | T
+    | {
+        score?: T;
+        qualified?: T;
+        scoringDetails?:
+          | T
+          | {
+              rule?: T;
+              field?: T;
+              value?: T;
+              points?: T;
+              id?: T;
+            };
+      };
+  processing?:
+    | T
+    | {
+        processed?: T;
+        processedAt?: T;
+        processedBy?: T;
+        notifications?:
+          | T
+          | {
+              emailSent?: T;
+              emailSentAt?: T;
+              webhookSent?: T;
+              webhookSentAt?: T;
+              crmSynced?: T;
+              crmSyncedAt?: T;
+            };
+        errors?:
+          | T
+          | {
+              type?: T;
+              message?: T;
+              timestamp?: T;
+              resolved?: T;
+              id?: T;
+            };
+      };
+  spam?:
+    | T
+    | {
+        isSpam?: T;
+        spamScore?: T;
+        spamReasons?:
+          | T
+          | {
+              reason?: T;
+              details?: T;
+              id?: T;
+            };
+      };
+  metadata?:
+    | T
+    | {
+        submissionTime?: T;
+        pageUrl?: T;
+        utmParameters?:
+          | T
+          | {
+              source?: T;
+              medium?: T;
+              campaign?: T;
+              term?: T;
+              content?: T;
+            };
+        device?:
+          | T
+          | {
+              type?: T;
+              browser?: T;
+              os?: T;
+            };
+      };
+  assignedTo?: T;
+  notes?:
+    | T
+    | {
+        note?: T;
+        date?: T;
+        user?: T;
+        id?: T;
+      };
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2093,6 +5465,214 @@ export interface About {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ai-settings".
+ */
+export interface AiSetting {
+  id: number;
+  general?: {
+    /**
+     * Enable AI-powered features across the platform
+     */
+    enabled?: boolean | null;
+    /**
+     * Default AI model for content generation
+     */
+    defaultModel?: ('gpt-4' | 'gpt-4-turbo-preview' | 'gpt-3.5-turbo') | null;
+    /**
+     * Default creativity level (0 = focused, 2 = very creative)
+     */
+    defaultTemperature?: number | null;
+    /**
+     * Maximum tokens per AI request
+     */
+    maxTokensPerRequest?: number | null;
+  };
+  autoOptimization?: {
+    /**
+     * Enable automatic AI optimization for published content
+     */
+    enabled?: boolean | null;
+    /**
+     * Automatically generate SEO suggestions
+     */
+    seoOptimization?: boolean | null;
+    /**
+     * Automatically generate meta descriptions for new content
+     */
+    metaGeneration?: boolean | null;
+    /**
+     * Automatically improve content readability
+     */
+    readabilityImprovement?: boolean | null;
+    /**
+     * Conditions that trigger automatic optimization
+     */
+    triggerConditions?:
+      | {
+          contentType?: ('pages' | 'posts' | 'all') | null;
+          status?: ('published' | 'draft' | 'any') | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  contentGeneration?: {
+    /**
+     * Configure which content types can be AI-generated
+     */
+    allowedTypes?:
+      | {
+          type?:
+            | (
+                | 'blog_post'
+                | 'page_content'
+                | 'email'
+                | 'social_media'
+                | 'seo_content'
+                | 'marketing_copy'
+                | 'product_description'
+                | 'translation'
+              )
+            | null;
+          enabled?: boolean | null;
+          maxRequestsPerDay?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Pre-configured templates for content generation
+     */
+    templates?:
+      | {
+          name: string;
+          type?: ('blog_post' | 'page_content' | 'email' | 'social_media' | 'marketing_copy') | null;
+          systemPrompt: string;
+          defaultTone?: ('professional' | 'casual' | 'friendly' | 'formal' | 'conversational' | 'persuasive') | null;
+          defaultWordCount?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  translation?: {
+    /**
+     * Enable AI-powered translation features
+     */
+    enabled?: boolean | null;
+    /**
+     * Languages available for AI translation
+     */
+    supportedLanguages?:
+      | {
+          /**
+           * Language code (e.g., es, fr, de)
+           */
+          code: string;
+          /**
+           * Language name (e.g., Spanish, French, German)
+           */
+          name: string;
+          enabled?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Automatically translate content when published
+     */
+    autoTranslation?: boolean | null;
+    /**
+     * Preserve HTML formatting in translations
+     */
+    preserveFormatting?: boolean | null;
+  };
+  costManagement?: {
+    /**
+     * Monthly budget limit in USD
+     */
+    monthlyBudget?: number | null;
+    /**
+     * Send alert when budget usage reaches this percentage
+     */
+    alertThreshold?: number | null;
+    /**
+     * Track AI usage and costs
+     */
+    trackUsage?: boolean | null;
+    /**
+     * Cost configuration for different AI models
+     */
+    costPerModel?:
+      | {
+          model: string;
+          /**
+           * Cost per 1000 input tokens in USD
+           */
+          inputCostPer1k: number;
+          /**
+           * Cost per 1000 output tokens in USD
+           */
+          outputCostPer1k: number;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  qualityControl?: {
+    /**
+     * Minimum quality score for AI-generated content
+     */
+    minimumQualityScore?: number | null;
+    /**
+     * Require human review for AI-generated content
+     */
+    requireHumanReview?: boolean | null;
+    /**
+     * Automatically regenerate content if quality score is too low
+     */
+    autoRegenerate?: boolean | null;
+    /**
+     * Content filters for AI-generated content
+     */
+    contentFilters?:
+      | {
+          type?: ('profanity' | 'spam' | 'inappropriate' | 'plagiarism') | null;
+          enabled?: boolean | null;
+          action?: ('block' | 'flag' | 'fix') | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  integrations?: {
+    openai?: {
+      /**
+       * OpenAI API Key (leave blank to use environment variable)
+       */
+      apiKey?: string | null;
+      /**
+       * OpenAI API Base URL (leave blank to use default)
+       */
+      baseUrl?: string | null;
+      /**
+       * OpenAI Organization ID (optional)
+       */
+      organization?: string | null;
+    };
+    /**
+     * Webhook notifications for AI events
+     */
+    webhooks?:
+      | {
+          event?:
+            | ('content_generated' | 'content_improved' | 'translation_complete' | 'quality_alert' | 'budget_alert')
+            | null;
+          url: string;
+          enabled?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -2160,6 +5740,124 @@ export interface AboutSelect<T extends boolean = true> {
         statLabel?: T;
         statValue?: T;
         id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ai-settings_select".
+ */
+export interface AiSettingsSelect<T extends boolean = true> {
+  general?:
+    | T
+    | {
+        enabled?: T;
+        defaultModel?: T;
+        defaultTemperature?: T;
+        maxTokensPerRequest?: T;
+      };
+  autoOptimization?:
+    | T
+    | {
+        enabled?: T;
+        seoOptimization?: T;
+        metaGeneration?: T;
+        readabilityImprovement?: T;
+        triggerConditions?:
+          | T
+          | {
+              contentType?: T;
+              status?: T;
+              id?: T;
+            };
+      };
+  contentGeneration?:
+    | T
+    | {
+        allowedTypes?:
+          | T
+          | {
+              type?: T;
+              enabled?: T;
+              maxRequestsPerDay?: T;
+              id?: T;
+            };
+        templates?:
+          | T
+          | {
+              name?: T;
+              type?: T;
+              systemPrompt?: T;
+              defaultTone?: T;
+              defaultWordCount?: T;
+              id?: T;
+            };
+      };
+  translation?:
+    | T
+    | {
+        enabled?: T;
+        supportedLanguages?:
+          | T
+          | {
+              code?: T;
+              name?: T;
+              enabled?: T;
+              id?: T;
+            };
+        autoTranslation?: T;
+        preserveFormatting?: T;
+      };
+  costManagement?:
+    | T
+    | {
+        monthlyBudget?: T;
+        alertThreshold?: T;
+        trackUsage?: T;
+        costPerModel?:
+          | T
+          | {
+              model?: T;
+              inputCostPer1k?: T;
+              outputCostPer1k?: T;
+              id?: T;
+            };
+      };
+  qualityControl?:
+    | T
+    | {
+        minimumQualityScore?: T;
+        requireHumanReview?: T;
+        autoRegenerate?: T;
+        contentFilters?:
+          | T
+          | {
+              type?: T;
+              enabled?: T;
+              action?: T;
+              id?: T;
+            };
+      };
+  integrations?:
+    | T
+    | {
+        openai?:
+          | T
+          | {
+              apiKey?: T;
+              baseUrl?: T;
+              organization?: T;
+            };
+        webhooks?:
+          | T
+          | {
+              event?: T;
+              url?: T;
+              enabled?: T;
+              id?: T;
+            };
       };
   updatedAt?: T;
   createdAt?: T;

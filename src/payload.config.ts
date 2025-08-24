@@ -8,9 +8,21 @@ import { fileURLToPath } from 'url'
 
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
+import { MediaFolders } from './collections/MediaFolders'
+import { MediaCollections } from './collections/MediaCollections'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
+import { Roles } from './collections/Roles'
+import { Departments } from './collections/Departments'
+import { ContentWorkflow } from './collections/ContentWorkflow'
+import { ContentVersions } from './collections/ContentVersions'
+import { SEO } from './collections/SEO'
+import { Analytics } from './collections/Analytics'
+import { AIContent } from './collections/AIContent'
+import { FormBuilder } from './collections/FormBuilder'
+import { Leads } from './collections/Leads'
+import { FormSubmissions } from './collections/FormSubmissions'
 import { Testimonials } from './collections/Testimonials'
 import { Features } from './collections/Features'
 import { Pricing } from './collections/Pricing'
@@ -19,6 +31,11 @@ import { Pricing } from './collections/Pricing'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { About } from './globals/About'
+import { AISettings } from './globals/ai/AISettings'
+import { sitemapEndpoint } from './endpoints/seo/sitemap'
+import { robotsEndpoint } from './endpoints/seo/robots'
+import { analyticsDataEndpoint, seoScoreEndpoint } from './endpoints/seo/analytics'
+import { generateContentEndpoint, improveContentEndpoint, translateContentEndpoint, seoSuggestionsEndpoint } from './endpoints/ai/generate'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
@@ -79,9 +96,19 @@ export default buildConfig({
       url: process.env.DATABASE_URI || '',
     },
   }),
-  collections: [Pages, Posts, Media, Categories, Users, Testimonials, Features, Pricing],
+  collections: [Pages, Posts, Media, MediaFolders, MediaCollections, Categories, Users, Roles, Departments, ContentWorkflow, ContentVersions, SEO, Analytics, AIContent, FormBuilder, Leads, FormSubmissions, Testimonials, Features, Pricing],
   cors: [getServerSideURL()].filter(Boolean),
-  globals: [Header, Footer, About],
+  endpoints: [
+    sitemapEndpoint,
+    robotsEndpoint,
+    analyticsDataEndpoint,
+    seoScoreEndpoint,
+    generateContentEndpoint,
+    improveContentEndpoint,
+    translateContentEndpoint,
+    seoSuggestionsEndpoint,
+  ],
+  globals: [Header, Footer, About, AISettings],
   plugins: [
     ...plugins,
     // storage-adapter-placeholder

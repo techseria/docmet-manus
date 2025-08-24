@@ -16,6 +16,14 @@ import { populatePublishedAt } from '../../hooks/populatePublishedAt'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
 
+// Import workflow hooks
+import { 
+  createWorkflowHook, 
+  createVersionHook, 
+  scheduleContentHook,
+  validateWorkflowPermissions 
+} from '../../hooks/workflow/contentScheduler'
+
 import {
   MetaDescriptionField,
   MetaImageField,
@@ -40,7 +48,7 @@ export const Pages: CollectionConfig<'pages'> = {
     slug: true,
   },
   admin: {
-    defaultColumns: ['title', 'slug', 'updatedAt'],
+    defaultColumns: ['title', 'slug', 'status', 'updatedAt'],
     livePreview: {
       url: ({ data, req }) => {
         const path = generatePreviewPath({
@@ -59,12 +67,28 @@ export const Pages: CollectionConfig<'pages'> = {
         req,
       }),
     useAsTitle: 'title',
+    group: 'Content',
   },
   fields: [
     {
       name: 'title',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'status',
+      type: 'select',
+      defaultValue: 'draft',
+      options: [
+        { label: '📝 Draft', value: 'draft' },
+        { label: '👀 In Review', value: 'in-review' },
+        { label: '✅ Approved', value: 'approved' },
+        { label: '🚀 Published', value: 'published' },
+        { label: '📅 Scheduled', value: 'scheduled' },
+      ],
+      admin: {
+        position: 'sidebar',
+      },
     },
     {
       type: 'tabs',
@@ -123,11 +147,24 @@ export const Pages: CollectionConfig<'pages'> = {
         position: 'sidebar',
       },
     },
+    {
+      name: 'publishDate',
+      type: 'date',
+      admin: {
+        position: 'sidebar',
+        description: 'Schedule this page for future publication',
+      },
+    },
     ...slugField(),
   ],
   hooks: {
-    afterChange: [revalidatePage],
-    beforeChange: [populatePublishedAt],
+    beforeChange: [populatePublishedAt, validateWorkflowPermissions],
+    afterChange: [
+      revalidatePage,
+      createWorkflowHook,
+      createVersionHook,
+      scheduleContentHook,
+    ],
     afterDelete: [revalidateDelete],
   },
   versions: {
